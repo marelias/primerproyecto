@@ -6,7 +6,7 @@
             @include('admin.menu')
 
             <div class="col-sm-10">
-                <a href="{{ route('admin.ruta.create') }}" class="btn btn-success mb-3">NUEVA RUTA</a>
+                <a href="{{ route('admin.post.create') }}" class="btn btn-success mb-3">NUEVo PUBLICACION</a>
 
                 <table class="table table-striped">
                     <thead>
@@ -17,14 +17,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($rutas as $item)
+                        @forelse ($posts as $item)
                             <tr>
                                 <td>{{ $item->orden }}</td>
                                 <td>{{ $item->nombre }}</td>
                                 <td>
-                                    <a href="{{ route('admin.ruta.edit', $item->id) }}" class="btn btn-success">EDITAR</a>
+                                    <a href="{{ route('admin.post.edit', $item->id) }}" class="btn btn-success">EDITAR</a>
                                     
-                                    <form action="{{ route('admin.ruta.destroy', $item->id) }}" method="POST" style="display:inline">
+                                    <form action="{{ route('admin.post.destroy', $item->id) }}" method="POST" style="display:inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger" onclick="return confirm('¿ESTÁS SEGURO DE ELIMINAR?')">ELIMINAR</button>
@@ -33,7 +33,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center">No hay rutas registradas.</td>
+                                <td colspan="3" class="text-center">No hay posts registradas.</td>
                             </tr>
                         @endforelse
                     </tbody>

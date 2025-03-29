@@ -4,34 +4,35 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Ruta;
+use App\Models\Post;
 use App\Models\Imagen;
 use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\File;
 use illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
-class RutaController extends Controller
+class PostController extends Controller
 {
-    public function index(){
-        $rutas = Ruta::all();
-        return view("admin.ruta.index", compact("rutas"));
+    public function index()
+    {
+        $posts = Post::all();
+        return view("admin.post.index", compact("posts"));
     }
 
     public function create()
     {
-        return view('admin.ruta.create');
+        return view('admin.post.create');
     }
 
     public function store(Request $request)
     {
-        // Crear instancia de Ruta y asignar datos
-        $ruta = new Ruta();
-        $ruta->nombre = $request->nombre;
-        $ruta->descripcion = $request->descripcion;
+        // Crear instancia de Post y asignar datos
+        $post = new Post();
+        $post->nombre = $request->nombre;
+        $post->descripcion = $request->descripcion;
 
         if ($request->hasFile('urlfoto')) {
             $imagen = $request->file('urlfoto');
-            $nuevonombre = "ruta_" . time() . "." . $imagen->guessExtension();
+            $nuevonombre = "post_" . time() . "." . $imagen->guessExtension();
 
             // Instanciar ImageManager correctamente
             $manager = new ImageManager(new Driver());
@@ -40,8 +41,8 @@ class RutaController extends Controller
             $image = $manager->read($imagen->getRealPath());
             $image->cover(900, 450); // Redimensiona la imagen
 
-            // Asegurar que la carpeta 'img/ruta' existe
-            $path = public_path('img/ruta');
+            // Asegurar que la carpeta 'img/post' existe
+            $path = public_path('img/post');
             if (!File::exists($path)) {
                 File::makeDirectory($path, 0755, true, true);
             }
@@ -50,47 +51,47 @@ class RutaController extends Controller
             $image->toJpeg()->save($path . '/' . $nuevonombre);
 
             // Asignar el nuevo nombre al modelo
-            $ruta->urlfoto = $nuevonombre;
+            $post->urlfoto = $nuevonombre;
         }
         // Generar un slug único
         $slug = Str::slug($request->nombre);
         $contador = 1;
 
         // Verificar si el slug ya existe
-        while (Ruta::where('slug', $slug)->exists()) {
+        while (Post::where('slug', $slug)->exists()) {
             $slug = Str::slug($request->nombre) . '-' . $contador;
             $contador++;
         }
 
-        $ruta->slug = $slug; // Asigna el slug único
-        // Guardar la ruta en la base de datos
-        $ruta->title = $request->title;
-        $ruta->description = $request->description ?? 'Descripción por defecto';
+        $post->slug = $slug; // Asigna el slug único
+        // Guardar la post en la base de datos
+        $post->title = $request->title;
+        $post->description = $request->description ?? 'Descripción por defecto';
 
-        $ruta->save();
+        $post->save();
 
-        return redirect()->route('admin.ruta.index')->with('success', 'Ruta creada exitosamente');
+        return redirect()->route('admin.post.index')->with('success', 'Post creada exitosamente');
     }
     public function edit($id)
     {
-        $ruta = Ruta::findOrFail($id);
-        return view('admin.ruta.edit', compact('ruta'));
+        $post = Post::findOrFail($id);
+        return view('admin.post.edit', compact('post'));
     }
 
     public function update(Request $request, $id)
     {
-        $ruta = Ruta::findOrFail($id);
-        $ruta->nombre = $request->nombre;
-        $ruta->descripcion = $request->descripcion;
+        $post = Post::findOrFail($id);
+        $post->nombre = $request->nombre;
+        $post->descripcion = $request->descripcion;
 
         if ($request->hasFile('urlfoto')) {
             // Eliminar la imagen anterior si existe
-            if ($ruta->urlfoto && File::exists(public_path('img/ruta/' . $ruta->urlfoto))) {
-                File::delete(public_path('img/ruta/' . $ruta->urlfoto));
+            if ($post->urlfoto && File::exists(public_path('img/post/' . $post->urlfoto))) {
+                File::delete(public_path('img/post/' . $post->urlfoto));
             }
 
             $imagen = $request->file('urlfoto');
-            $nuevonombre = "ruta_" . time() . "." . $imagen->guessExtension();
+            $nuevonombre = "post_" . time() . "." . $imagen->guessExtension();
 
             // Instanciar ImageManager correctamente
             $manager = new ImageManager(new Driver());
@@ -99,8 +100,8 @@ class RutaController extends Controller
             $image = $manager->read($imagen->getRealPath());
             $image->cover(900, 450); // Redimensiona la imagen
 
-            // Asegurar que la carpeta 'img/ruta' existe
-            $path = public_path('img/ruta');
+            // Asegurar que la carpeta 'img/post' existe
+            $path = public_path('img/post');
             if (!File::exists($path)) {
                 File::makeDirectory($path, 0755, true, true);
             }
@@ -109,7 +110,7 @@ class RutaController extends Controller
             $image->toJpeg()->save($path . '/' . $nuevonombre);
 
             // Asignar el nuevo nombre al modelo
-            $ruta->urlfoto = $nuevonombre;
+            $post->urlfoto = $nuevonombre;
         }
 
         // Generar un slug único
@@ -117,36 +118,36 @@ class RutaController extends Controller
         $contador = 1;
 
         // Verificar si el slug ya existe
-        while (Ruta::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+        while (Post::where('slug', $slug)->where('id', '!=', $id)->exists()) {
             $slug = Str::slug($request->nombre) . '-' . $contador;
             $contador++;
         }
 
-        $ruta->slug = $slug; // Asigna el slug único
-        // Guardar la ruta en la base de datos
-        $ruta->title = $request->title;
+        $post->slug = $slug; // Asigna el slug único
+        // Guardar la post en la base de datos
+        $post->title = $request->title;
 
-        $ruta->save();
+        $post->save();
 
-        return redirect()->route('admin.ruta.index')->with('success', 'Ruta actualizada exitosamente');
+        return redirect()->route('admin.post.index')->with('success', 'Post actualizada exitosamente');
     }
     public function destroy($id)
     {
-        $ruta = Ruta::findOrFail($id);
+        $post = Post::findOrFail($id);
 
         // Eliminar la imagen de la carpeta si existe
-        if ($ruta->urlfoto && File::exists(public_path('img/ruta/' . $ruta->urlfoto))) {
-            File::delete(public_path('img/ruta/' . $ruta->urlfoto));
+        if ($post->urlfoto && File::exists(public_path('img/post/' . $post->urlfoto))) {
+            File::delete(public_path('img/post/' . $post->urlfoto));
         }
 
-        // Eliminar la ruta de la base de datos
-        $ruta->delete();
+        // Eliminar la post de la base de datos
+        $post->delete();
 
-        return redirect()->route('admin.ruta.index')->with('success', 'Ruta eliminada exitosamente');
+        return redirect()->route('admin.post.index')->with('success', 'Post eliminada exitosamente');
     }
     public function show($id)
     {
-        $ruta = Ruta::findOrFail($id);
-        return view('admin.ruta.show', compact('ruta'));
+        $post = Post::findOrFail($id);
+        return view('admin.post.show', compact('post'));
     }
 }

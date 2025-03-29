@@ -15,13 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('slug', 100)-> unique();
             $table->string ('title', 67);
-            $table->string ('descrption', 155);
+            $table->string ('description', 155);
             $table->string ('nombre', 100)-> unique();
             $table->text ('descripcion');
             $table->string ('urlfoto', 100)->default("foto.jpg");
             $table->string ('visitas')->default(0);
-            $table->string ('orden')->default(0);
-            
+            $table->integer('orden')->default(1);
         });
     }
 
